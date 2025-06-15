@@ -5,6 +5,10 @@ const state = proxy({
   finishedLoadingAsset: false,
   hovered: false,
   showSettings: false,
+  background: "video3",
+  reflectivity: 0.45,
+  isDragging: false,
+  display: "clock",
 });
 
 export { state };

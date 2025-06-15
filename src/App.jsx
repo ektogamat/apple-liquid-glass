@@ -8,6 +8,7 @@ import DynamicLights from "./components/DynamicLights";
 import CustomCursor from "./components/CustomCursor";
 import * as THREE from "three";
 import LoadingScreen from "./components/LoadingScreen/LoadingScreen";
+import Settings from "./components/Settings";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
       >
         <Suspense fallback={null}>
           <Clock />
+          <Settings />
           <Scene />
           <CustomCursor />
           <AnimateCamera />

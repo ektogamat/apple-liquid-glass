@@ -3,14 +3,12 @@ import { useEffect, useRef, useState } from "react";
 import { useProgress } from "@react-three/drei";
 import { state } from "../../store";
 import { useSnapshot } from "valtio";
-import { Leva } from "leva";
 
 export default function LoadingScreen() {
   const { progress } = useProgress();
   const { finishedMainLoading } = useSnapshot(state);
   const mainCanvas = document.getElementsByTagName("canvas");
   const [visibleButton, setVisibleButton] = useState(false);
-  const { showSettings } = useSnapshot(state);
 
   const progressRef = useRef();
 
@@ -57,7 +55,6 @@ export default function LoadingScreen() {
           </div>
         </div>
       )}
-      <Leva hidden={!showSettings} oneLineLabels />
     </>
   );
 }

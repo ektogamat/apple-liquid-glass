@@ -9,7 +9,7 @@ import { state } from "../store";
 export default function CustomCursor() {
   const cursorRef = useRef();
   const [clicked, setClicked] = useState(false);
-  const { hovered } = useSnapshot(state);
+  const { hovered, reflectivity, isDragging } = useSnapshot(state);
 
   useFrame((state, delta) => {
     cursorRef.current.position.set(
@@ -19,45 +19,36 @@ export default function CustomCursor() {
     );
   });
 
-  const { reflectivity, materialThickness, meshThickness } = useControls({
-    reflectivity: {
-      value: 0.9,
-      min: 0,
-      max: 1,
-    },
-    materialThickness: {
-      value: 0.7,
-      min: 0,
-      max: 1,
-    },
-    meshThickness: {
-      value: 0.12,
-      min: 0.06,
-      max: 0.4,
-      step: 0.01,
-    },
-  });
-
   useEffect(() => {
     if (clicked || hovered) {
-      gsap.to(cursorRef.current.scale, {
-        x: 1.7,
-        y: 1.7,
-        z: meshThickness,
-        duration: 1.5,
-        ease: "elastic(1, 0.3)",
-      });
+      if (isDragging) {
+        gsap.to(cursorRef.current.scale, {
+          x: 1,
+          y: 1,
+          z: 0.1,
+          duration: 1.5,
+          ease: "elastic(1, 0.3)",
+        });
+      } else {
+        gsap.to(cursorRef.current.scale, {
+          x: 1.7,
+          y: 1.7,
+          z: 0.2,
+          duration: 1.5,
+          ease: "elastic(1, 0.3)",
+        });
+      }
     } else {
       gsap.to(cursorRef.current.scale, {
         x: 1,
         y: 1,
-        z: 0.5,
+        z: 0.75,
         duration: 1.5,
         ease: "elastic(1, 0.3)",
       });
     }
     document.body.style.cursor = "none";
-  }, [clicked, hovered]);
+  }, [clicked, hovered, isDragging]);
 
   useEffect(() => {
     window.addEventListener("pointerdown", () => {
@@ -79,7 +70,7 @@ export default function CustomCursor() {
         metalness={0}
         roughness={0.01}
         ior={1.8}
-        thickness={materialThickness}
+        thickness={reflectivity}
         reflectivity={reflectivity}
         chromaticAberration={0.1}
         clearcoat={0.4}
@@ -91,16 +82,16 @@ export default function CustomCursor() {
         samples={4}
       />
     );
-  }, [reflectivity, materialThickness]);
+  }, [reflectivity]);
 
   return (
     <group ref={cursorRef}>
       <Capsule
         scale={[1, 1, 1]}
-        args={[0.1, 0.3, 64, 64]}
+        args={isDragging ? [0.08, 0.1, 64, 64] : [0.1, 0.3, 64, 64]}
         position={[0, 0, 0.1]}
         rotation={[0, 0, -Math.PI / 2]}
-        visible={clicked || hovered}
+        visible={clicked || hovered || isDragging}
       >
         {material}
       </Capsule>
@@ -109,7 +100,7 @@ export default function CustomCursor() {
         scale={[1, 1, 0.12]}
         args={[0.1, 64, 64]}
         position={[0, 0, 0.1]}
-        visible={!clicked && !hovered}
+        visible={!clicked && !hovered && !isDragging}
       >
         {material}
       </Sphere>

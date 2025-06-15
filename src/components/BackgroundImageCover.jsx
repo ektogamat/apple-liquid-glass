@@ -3,6 +3,8 @@ import { extend, useThree } from "@react-three/fiber";
 import { shaderMaterial, useTexture, useVideoTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { useControls } from "leva";
+import { useSnapshot } from "valtio";
+import { state } from "../store";
 
 function VideoBackground({ videoNumber }) {
   const { viewport, camera } = useThree();
@@ -70,7 +72,7 @@ function VideoBackground({ videoNumber }) {
             screenUV = clamp(screenUV, 0.0, 1.0);
             
             vec4 texColor = texture2D(map, screenUV);
-            vec3 finalColor = mix(texColor.rgb, vec3(0.0, 0.0, 0.0), 0.2);
+            vec3 finalColor = mix(texColor.rgb, vec3(0.0, 0.0, 0.0), 0.3);
             gl_FragColor = vec4(finalColor, 1.0);
           }
         `
@@ -102,7 +104,7 @@ function VideoBackground({ videoNumber }) {
       );
     }
     if (meshRef.current) {
-      meshRef.current.scale.set(viewport.width / 2, viewport.height / 2, 1);
+      meshRef.current.scale.set(viewport.width / 1.5, viewport.height / 1.5, 1);
     }
   };
 
@@ -133,7 +135,7 @@ function VideoBackground({ videoNumber }) {
 
   return (
     <mesh
-      position={[0, 0, 0]}
+      position={[0, 0, -1.5]}
       ref={meshRef}
       scale={[viewport.width, viewport.height, 1]}
     >
@@ -144,7 +146,8 @@ function VideoBackground({ videoNumber }) {
 }
 
 function ImageBackground({ imageName }) {
-  const { viewport } = useThree();
+  const { viewport, camera } = useThree();
+
   const materialRef = useRef();
   const meshRef = useRef();
 
@@ -222,9 +225,47 @@ function ImageBackground({ imageName }) {
     }
   }, [imageTexture]);
 
+  // Function to update dimensions
+  const updateDimensions = () => {
+    if (materialRef.current) {
+      materialRef.current.viewportResolution.set(
+        viewport.width,
+        viewport.height
+      );
+    }
+    if (meshRef.current) {
+      meshRef.current.scale.set(viewport.width / 1.5, viewport.height / 1.5, 1);
+    }
+  };
+
+  // Initialize dimensions synchronously before first render
+  useLayoutEffect(() => {
+    updateDimensions();
+    if (materialRef.current && imageTexture) {
+      materialRef.current.map = imageTexture;
+    }
+  }, []);
+
+  // Update viewport dimensions when they change
+  useEffect(() => {
+    updateDimensions();
+  }, [viewport]);
+
+  // Listen for camera changes (FOV animations, etc.)
+  useEffect(() => {
+    updateDimensions();
+  }, [camera.fov, camera.aspect]);
+
+  // Ensure texture is always applied when it changes
+  useEffect(() => {
+    if (materialRef.current && imageTexture) {
+      materialRef.current.map = imageTexture;
+    }
+  }, []);
+
   return (
     <mesh
-      position={[0, 0, 0]}
+      position={[0, 0, -1.5]}
       ref={meshRef}
       scale={[viewport.width, viewport.height, 1]}
     >
@@ -235,19 +276,14 @@ function ImageBackground({ imageName }) {
 }
 
 export default function BackgroundImageCover() {
-  const { backgroundOptions } = useControls({
-    backgroundOptions: {
-      value: "video3",
-      options: ["bg1", "bg2", "bg3", "video1", "video2", "video3"],
-    },
-  });
+  const { background } = useSnapshot(state);
 
-  const isVideo = ["video1", "video2", "video3"].includes(backgroundOptions);
-  const videoNumber = isVideo ? backgroundOptions.slice(-1) : null;
+  const isVideo = ["video1", "video2", "video3"].includes(background);
+  const videoNumber = isVideo ? background.slice(-1) : null;
 
   return isVideo ? (
     <VideoBackground videoNumber={videoNumber} />
   ) : (
-    <ImageBackground imageName={backgroundOptions} />
+    <ImageBackground imageName={background} />
   );
 }
