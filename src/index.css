@@ -38,3 +38,8 @@ canvas {
   z-index: -1;
   cursor: none;
 }
+
+.main-container {
+  width: 100vw;
+  height: 100vh;
+}

@@ -12,20 +12,9 @@ import Settings from "./components/Settings";
 
 function App() {
   return (
-    <div style={{ width: "100vw", height: "100vh" }}>
+    <div className="main-container">
       <LoadingScreen />
-      <Canvas
-        gl={{
-          antialias: true,
-          powerPreference: "high-performance",
-          toneMappingExposure: 1.5,
-          stencil: false,
-          alpha: false,
-          toneMapping: THREE.NeutralToneMapping,
-        }}
-        camera={{ near: 0.01, far: 1000, fov: 5, position: [0, 0, 25] }}
-        dpr={1}
-      >
+      <Canvas {...canvasProps}>
         <Suspense fallback={null}>
           <Clock />
           <Settings />
@@ -41,3 +30,16 @@ function App() {
 }
 
 export default App;
+
+const canvasProps = {
+  gl: {
+    antialias: true,
+    powerPreference: "high-performance",
+    toneMappingExposure: 1.5,
+    stencil: false,
+    alpha: false,
+    toneMapping: THREE.NeutralToneMapping,
+  },
+  camera: { near: 0.01, far: 1000, fov: 5, position: [0, 0, 25] },
+  dpr: 1,
+};
