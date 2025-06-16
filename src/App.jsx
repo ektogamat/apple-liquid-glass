@@ -41,5 +41,5 @@ const canvasProps = {
     toneMapping: THREE.NeutralToneMapping,
   },
   camera: { near: 0.01, far: 1000, fov: 5, position: [0, 0, 25] },
-  dpr: 1,
+  dpr: [1, 1.5],
 };
