@@ -8,7 +8,7 @@ const state = proxy({
   background: "video3",
   reflectivity: 0.45,
   isDragging: false,
-  display: "clock",
+  display: "grid",
 });
 
 export { state };
